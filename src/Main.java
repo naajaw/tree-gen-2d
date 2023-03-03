@@ -1,20 +1,21 @@
 import processing.core.PApplet;
-import processing.core.PVector;
-
 import java.util.ArrayList;
 
 public class Main extends PApplet {
 
     private ArrayList<Mover> movers;
+    private final int count = 50;
     private final float frictionC = 0.01f;
     private final float dragC = 0.1f;
+    private FlowField flowField;
 
     public void settings() {
-        size(1600, 1000);
-        movers = new ArrayList<>(50);
-        for (int i = 0; i < 50; i++) {
+        size(3200, 2000);
+        movers = new ArrayList<>(count);
+        for (int i = 0; i < count; i++) {
             movers.add(new Mover(this, 1, random(width), random(height)));
         }
+        flowField = new FlowField(this, 10);
     }
 
 
@@ -36,14 +37,18 @@ public class Main extends PApplet {
 //        return drag;
 //    }
     public void draw() {
-        background(255);
+//        background(255);
+        if (frameCount == 1)
+            flowField.debug();
 
 //        PVector wind = new PVector(0.01f, 0);
 
         for (Mover m: movers) {
 
-            m.seek(new PVector(mouseX, mouseY));
+//            m.seek(new PVector(mouseX, mouseY));
+//            m.wander();
             m.separate(movers);
+            m.follow(flowField);
 
             m.update();
             m.display();
