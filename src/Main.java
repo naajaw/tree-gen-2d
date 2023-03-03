@@ -41,26 +41,21 @@ public class Main extends PApplet {
         if (frameCount == 1)
             flowField.debug();
 
-//        PVector wind = new PVector(0.01f, 0);
-
         for (Mover m: movers) {
 
-//            m.seek(new PVector(mouseX, mouseY));
-//            m.wander();
-            m.separate(movers);
-            m.follow(flowField);
+            m.applyBehaviors(movers, flowField);
 
             m.update();
             m.display();
 //            Mover mover = movers[i];
 //            mover.applyForce(wind);
-//            PVector gravity = new PVector(0, 0.1f * mover.mass);
-//            mover.applyForce(gravity);
-//            mover.applyForce(getFriction(mover));
 //
 //            mover.update();
 //            mover.display();
 //            mover.checkEdges();
+//            mover.applyForce(gravity);
+//            mover.applyForce(getFriction(mover));
+//            PVector gravity = new PVector(0, 0.1f * mover.mass);
         }
     }
 

@@ -29,24 +29,40 @@ public class Mover {
         acc.add(f);
     }
 
-    public void seek(PVector target) {
-        PVector desired = PVector.sub(target, pos);
-        desired.setMag(maxSpeed);
-        PVector steer = PVector.sub(desired, vel);
-        steer.limit(maxForce);
-        System.out.println("SEEK force: " + steer.x + " " + steer.y);
-        applyForce(steer);
+    void applyBehaviors(ArrayList<Mover> others, FlowField flow) {
+        PVector sep = separate(others);
+        PVector coh = cohesion(others);
+        PVector ali = align(others);
+//        PVector follow = follow(flow);
+
+        sep.mult(1.5f);
+        ali.mult(1.0f);
+        coh.mult(1.0f);
+//        follow.mult(0.5f);
+
+        applyForce(sep);
+        applyForce(ali);
+        applyForce(coh);
     }
 
-    public void follow(FlowField flow) {
+    public PVector seek(PVector target) {
+        PVector steer = PVector.sub(target, pos);
+        steer.setMag(maxSpeed);
+        steer.sub(vel);
+        steer.limit(maxForce);
+//        System.out.println("SEEK force: " + steer.x + " " + steer.y);
+        return steer;
+    }
+
+    public PVector follow(FlowField flow) {
         PVector steer = flow.lookup(pos);
         steer.mult(maxSpeed);
         steer.sub(vel);
         steer.limit(maxForce);
-        applyForce(steer);
+        return steer;
     }
 
-    public void wander() {
+    public PVector wander() {
         PVector predict = vel.copy();
         predict.setMag(wanderDistance);
         predict.add(pos);
@@ -54,21 +70,23 @@ public class Mover {
         float theta = p.random(2 * p.PI);
         float x = r * PApplet.cos(theta);
         float y = r * PApplet.sin(theta);
-        System.out.println("wander diff: " + x + " " + y);
+//        System.out.println("wander diff: " + x + " " + y);
         PVector target = PVector.add(predict, new PVector(x, y));
 //        debug(predict, target);
-        seek(target);
+        return seek(target);
     }
 
-    public void separate(ArrayList<Mover> movers) {
+    public PVector separate(ArrayList<Mover> others) {
         float sepDistance = mass * 100;
 
         PVector sum = new PVector();
+        PVector diff = new PVector();
         int count = 0;
-        for (Mover other: movers) {
+        for (Mover other: others) {
             float d = PVector.dist(pos, other.pos);
             if ((d > 0) && (d < sepDistance)) {
-                PVector diff = PVector.sub(pos, other.pos);
+                diff.x = pos.x - other.pos.x;
+                diff.y = pos.y - other.pos.y;
                 diff.normalize();
                 diff.div(sepDistance);
                 sum.add(diff);
@@ -81,8 +99,35 @@ public class Mover {
             PVector steer = PVector.sub(sum, vel);
             steer.limit(maxForce * 5);
 //          System.out.println("SEPARATE force:" + steer.x + " " + steer.y);
-            applyForce(steer);
+            return steer;
         }
+        return new PVector(0, 0);
+    }
+
+    public PVector cohesion(ArrayList<Mover> others) {
+
+    }
+
+    public PVector align(ArrayList<Mover> others) {
+        float neighborRadius = 50;
+        PVector steer = new PVector(0, 0);
+        int count = 1;
+        for (Mover other : others) {
+            float d = PVector.dist(pos, other.pos);
+            if ((d > 0) && (d < neighborRadius)) {
+                steer.add(other.vel);
+                count++;
+            }
+        }
+        if (count > 0) {
+            steer.div(count);
+            steer.normalize();
+            steer.mult(maxSpeed);
+            steer.sub(vel);
+            steer.limit(maxForce);
+            return steer;
+        }
+        return new PVector(0, 0);
     }
 
     public void update() {
