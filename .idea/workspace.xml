@@ -5,9 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b4f6c25c-0ded-4b56-9c7f-737aadebb306" name="Changes" comment="added flow field &amp; wandering behaviors">
+      <change afterPath="$PROJECT_DIR$/src/Flock.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Mover.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Mover.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Mover.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Boid.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -62,6 +63,7 @@
       <workItem from="1677729779651" duration="29000" />
       <workItem from="1677731400513" duration="609000" />
       <workItem from="1677807023415" duration="12278000" />
+      <workItem from="1678556574458" duration="3373000" />
     </task>
     <task id="LOCAL-00001" summary="added flow field &amp; wandering behaviors">
       <created>1677814845036</created>

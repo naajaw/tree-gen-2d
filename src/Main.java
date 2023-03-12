@@ -3,19 +3,19 @@ import java.util.ArrayList;
 
 public class Main extends PApplet {
 
-    private ArrayList<Mover> movers;
-    private final int count = 50;
+    private Flock flock;
+    private final int count = 100;
     private final float frictionC = 0.01f;
     private final float dragC = 0.1f;
     private FlowField flowField;
 
     public void settings() {
         size(3200, 2000);
-        movers = new ArrayList<>(count);
+        flock = new Flock(this, count);
         for (int i = 0; i < count; i++) {
-            movers.add(new Mover(this, 1, random(width), random(height)));
+            flock.addBoid(new Boid(this, 1, width/2, height/2));
         }
-        flowField = new FlowField(this, 10);
+//        flowField = new FlowField(this, 10);
     }
 
 
@@ -38,25 +38,10 @@ public class Main extends PApplet {
 //    }
     public void draw() {
 //        background(255);
-        if (frameCount == 1)
-            flowField.debug();
-
-        for (Mover m: movers) {
-
-            m.applyBehaviors(movers, flowField);
-
-            m.update();
-            m.display();
-//            Mover mover = movers[i];
-//            mover.applyForce(wind);
-//
-//            mover.update();
-//            mover.display();
-//            mover.checkEdges();
-//            mover.applyForce(gravity);
-//            mover.applyForce(getFriction(mover));
-//            PVector gravity = new PVector(0, 0.1f * mover.mass);
-        }
+//        if (frameCount == 1)
+//            flowField.debug();
+        flock.run();
+        System.out.println("frame: " + frameCount);
     }
 
 
