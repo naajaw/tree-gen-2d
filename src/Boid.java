@@ -16,6 +16,8 @@ public class Boid {
     private float wanderDistance = 80;
     private float wanderRadius = 60;
 
+    private float neighborDistance = 200;
+
     public Boid(PApplet pApplet, float _mass, float x, float y) {
         p = pApplet;
         mass = _mass;
@@ -40,7 +42,7 @@ public class Boid {
     public void display() {
         p.stroke(0);
         p.fill(48);
-        p.ellipse(pos.x, pos.y, 16 * mass, 16 * mass);
+        p.ellipse(pos.x, pos.y, 16, 16);
     }
 
     void applyForce(PVector force) {
@@ -56,8 +58,8 @@ public class Boid {
                 ? follow(flow)
                 : null;
 
-        sep.mult(1.0f);
-        ali.mult(1.5f);
+        sep.mult(1.5f);
+        ali.mult(1.0f);
         coh.mult(1.0f);
         if (flo != null)
             flo.mult(1.5f);
@@ -90,7 +92,7 @@ public class Boid {
     }
 
     public PVector separation(ArrayList<Boid> others) {
-        float sepDistance = mass * 100;
+        float sepDistance = mass * 10;
 
         PVector sum = new PVector(0, 0);
         PVector diff = new PVector();
@@ -101,7 +103,7 @@ public class Boid {
                 diff.x = pos.x - other.pos.x;
                 diff.y = pos.y - other.pos.y;
                 diff.normalize();
-                diff.div(sepDistance);
+                diff.div(d);
                 sum.add(diff);
                 count++;
             }
@@ -117,7 +119,6 @@ public class Boid {
     }
 
     public PVector cohesion(ArrayList<Boid> others) {
-        float neighborDistance = mass * 50;
         PVector sum = new PVector(0, 0);
         int count = 0;
         for (Boid other : others) {
@@ -135,12 +136,11 @@ public class Boid {
     }
 
     public PVector alignment(ArrayList<Boid> others) {
-        float neighborRadius = mass * 50;
         PVector steer = new PVector(0, 0);
         int count = 1;
         for (Boid other : others) {
             float d = PVector.dist(pos, other.pos);
-            if ((d > 0) && (d < neighborRadius)) {
+            if ((d > 0) && (d < neighborDistance)) {
                 steer.add(other.vel);
                 count++;
             }

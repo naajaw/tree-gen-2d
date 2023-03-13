@@ -13,7 +13,7 @@ public class Main extends PApplet {
         size(3200, 2000);
         flock = new Flock(this, count);
         for (int i = 0; i < count; i++) {
-            flock.addBoid(new Boid(this, 1, width/2, height/2));
+            flock.addBoid(new Boid(this, 10, width/2, height/2));
         }
 //        flowField = new FlowField(this, 10);
     }
