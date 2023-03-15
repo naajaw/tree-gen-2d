@@ -2,7 +2,7 @@ import processing.core.PApplet;
 import processing.core.PVector;
 
 public class FlowField {
-    private PApplet p;
+    private final PApplet p;
     PVector[][] field;
     int rows, cols;
     int resolution;

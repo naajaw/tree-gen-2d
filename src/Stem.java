@@ -3,30 +3,41 @@ import processing.core.PVector;
 
 import java.util.ArrayList;
 
-public class Boid {
-    private PApplet p;
+public class Stem {
+    private final PApplet p;
 
     public PVector pos;
     public PVector vel;
     public PVector acc;
     public float mass;
-    private float maxSpeed = 4f;
-    private float maxForce = 0.9f;
 
-    private float wanderDistance = 80;
-    private float wanderRadius = 60;
+    private float decayRate = 0.02f;
+    private final float neighborDistance = 200;
+    private float maxSpeed = 0.75f;
+    private float maxForce = 1f;
 
-    private float neighborDistance = 200;
+    private final float wanderDistance = 80;
+    private final float wanderRadius = 60;
+    private final float wanderChange = 0.2f;
+    private float wanderTheta = 0.0f;
 
-    public Boid(PApplet pApplet, float _mass, float x, float y) {
+
+    public Stem(PApplet pApplet, float _mass, float x, float y) {
         p = pApplet;
         mass = _mass;
         pos = new PVector(x, y);
-        vel = new PVector(p.random(-2, 2), p.random(-2, 2));
+        vel = new PVector(p.random(-2, 2), p.random(-2, -1));
+        acc = new PVector(0, 0);
+    }
+    public Stem(PApplet pApplet, Stem parent) {
+        p = pApplet;
+        mass = parent.mass;
+        pos = new PVector(parent.pos.x, parent.pos.y);
+        vel = new PVector(parent.vel.x, parent.vel.y); // TODO: parameterize initial branch angle!
         acc = new PVector(0, 0);
     }
 
-    public void run(ArrayList<Boid> others, FlowField flow) {
+    public void run(ArrayList<Stem> others, FlowField flow) {
         applyBehaviors(others, flow);
         update();
         display();
@@ -34,15 +45,16 @@ public class Boid {
 
     public void update() {
         vel.add(acc);
-        pos.add(vel);
+        pos.add(vel.setMag(maxSpeed * mass));
         acc.mult(0);
         checkEdges();
+        mass -= decayRate;
     }
 
     public void display() {
         p.stroke(0);
         p.fill(48);
-        p.ellipse(pos.x, pos.y, 16, 16);
+        p.ellipse(pos.x, pos.y, 3 * mass, 3 * mass);
     }
 
     void applyForce(PVector force) {
@@ -50,7 +62,9 @@ public class Boid {
         acc.add(f);
     }
 
-    void applyBehaviors(ArrayList<Boid> others, FlowField flow) {
+    void applyBehaviors(ArrayList<Stem> others, FlowField flow) {
+        PVector ris = rise();
+        PVector wan = wander();
         PVector sep = separation(others);
         PVector ali = alignment(others);
         PVector coh = cohesion(others);
@@ -58,12 +72,16 @@ public class Boid {
                 ? follow(flow)
                 : null;
 
-        sep.mult(1.5f);
+        ris.mult(1.0f);
+        wan.mult(5.0f);
+        sep.mult(2.0f);
         ali.mult(1.0f);
         coh.mult(1.0f);
         if (flo != null)
             flo.mult(1.5f);
 
+        applyForce(ris);
+        applyForce(wan);
         applyForce(sep);
         applyForce(ali);
         applyForce(coh);
@@ -80,24 +98,29 @@ public class Boid {
     }
 
     public PVector wander() {
+        wanderTheta += p.random(-wanderChange, wanderChange);
         PVector predict = vel.copy();
         predict.setMag(wanderDistance);
         predict.add(pos);
-        float r = wanderRadius;
-        float theta = p.random(2 * p.PI);
-        float x = r * PApplet.cos(theta);
-        float y = r * PApplet.sin(theta);
+        float originAngle = vel.heading();
+        float x = wanderRadius * PApplet.cos(wanderTheta + originAngle);
+        float y = wanderRadius * PApplet.sin(wanderTheta + originAngle);
         PVector target = PVector.add(predict, new PVector(x, y));
+//        debug(predict, target);
         return seek(target);
     }
 
-    public PVector separation(ArrayList<Boid> others) {
+    public PVector rise() {
+        return seek(new PVector(pos.x, pos.y -1));
+    }
+
+    public PVector separation(ArrayList<Stem> others) {
         float sepDistance = mass * 10;
 
         PVector sum = new PVector(0, 0);
         PVector diff = new PVector();
         int count = 0;
-        for (Boid other: others) {
+        for (Stem other: others) {
             float d = PVector.dist(pos, other.pos);
             if ((d > 0) && (d < sepDistance)) {
                 diff.x = pos.x - other.pos.x;
@@ -118,10 +141,10 @@ public class Boid {
         return new PVector(0, 0);
     }
 
-    public PVector cohesion(ArrayList<Boid> others) {
+    public PVector cohesion(ArrayList<Stem> others) {
         PVector sum = new PVector(0, 0);
         int count = 0;
-        for (Boid other : others) {
+        for (Stem other : others) {
             float d = PVector.dist(pos, other.pos);
             if (d > 0 & d < neighborDistance) {
                 sum.add(other.pos);
@@ -135,10 +158,10 @@ public class Boid {
         return new PVector(0, 0);
     }
 
-    public PVector alignment(ArrayList<Boid> others) {
+    public PVector alignment(ArrayList<Stem> others) {
         PVector steer = new PVector(0, 0);
         int count = 1;
-        for (Boid other : others) {
+        for (Stem other : others) {
             float d = PVector.dist(pos, other.pos);
             if ((d > 0) && (d < neighborDistance)) {
                 steer.add(other.vel);

@@ -6,7 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="b4f6c25c-0ded-4b56-9c7f-737aadebb306" name="Changes" comment="added flow field &amp; wandering behaviors">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Boid.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Boid.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Boid.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Stem.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Flock.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Tree.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/FlowField.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/FlowField.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -62,7 +64,8 @@
       <workItem from="1677729779651" duration="29000" />
       <workItem from="1677731400513" duration="609000" />
       <workItem from="1677807023415" duration="12278000" />
-      <workItem from="1678556574458" duration="6143000" />
+      <workItem from="1678556574458" duration="9488000" />
+      <workItem from="1678839665365" duration="6721000" />
     </task>
     <task id="LOCAL-00001" summary="added flow field &amp; wandering behaviors">
       <created>1677814845036</created>
