@@ -6,10 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="b4f6c25c-0ded-4b56-9c7f-737aadebb306" name="Changes" comment="added flow field &amp; wandering behaviors">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Boid.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Stem.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Flock.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Tree.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/FlowField.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/FlowField.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Stem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Stem.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Tree.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Tree.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,6 +51,15 @@
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
+  <component name="RunManager">
+    <configuration name="tree-standard" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="Main" />
+      <module name="tree-gen-2d" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -66,6 +74,8 @@
       <workItem from="1677807023415" duration="12278000" />
       <workItem from="1678556574458" duration="9488000" />
       <workItem from="1678839665365" duration="6721000" />
+      <workItem from="1678919676299" duration="3059000" />
+      <workItem from="1678924445893" duration="14313000" />
     </task>
     <task id="LOCAL-00001" summary="added flow field &amp; wandering behaviors">
       <created>1677814845036</created>

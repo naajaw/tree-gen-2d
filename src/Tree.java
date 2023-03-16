@@ -17,16 +17,22 @@ public class Tree {
         while (it.hasNext()) {
             Stem stem = it.next();
             stem.run(stems, null);
-            if (stem.mass <= 0)
+            if (stem.mass <= 2)
                 it.remove();
         }
     }
 
+    private float branchAngle = 0.2f;
     public void branch() {
-        ArrayList<Stem> buds = new ArrayList<>(stems.size());
-        for (Stem stem : stems) {
-            buds.add(new Stem(p, stem));
+//        ArrayList<Stem> buds = new ArrayList<>(stems.size());
+//        for (Stem stem : stems) {
+//            buds.add(new Stem(p, stem));
+//        }
+//        stems.addAll(buds);
+        if (stems.size() > 0) {
+            Stem trunk = stems.get(0);
+            stems.add(new Stem(p, trunk, branchAngle));
+            branchAngle *= -1;
         }
-        stems.addAll(buds);
     }
 }

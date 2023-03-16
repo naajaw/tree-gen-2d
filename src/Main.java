@@ -18,16 +18,15 @@ public class Main extends PApplet {
     }
 
     public void draw() {
-//        background(255);
+        background(255);
 //        if (frameCount == 1)
 //            flowField.debug();
         tree.run();
-        genCount++;
-        if (genCount > 60) {
-            tree.branch();
-            genCount = 0;
-        }
-
+//        genCount++;
+//        if (genCount > 60) {
+//            tree.branch();
+//            genCount = 0;
+//        }
 //        System.out.println("frame: " + frameCount);
     }
 

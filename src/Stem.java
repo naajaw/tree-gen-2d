@@ -6,19 +6,19 @@ import java.util.ArrayList;
 public class Stem {
     private final PApplet p;
 
+    public float mass;
     public PVector pos;
     public PVector vel;
     public PVector acc;
-    public float mass;
 
-    private float decayRate = 0.02f;
+    private float maxForce = 2f;
+    private float maxSpeed = 0.5f;
+    private float decayRate = 0.998f;
     private final float neighborDistance = 200;
-    private float maxSpeed = 0.75f;
-    private float maxForce = 1f;
 
-    private final float wanderDistance = 80;
-    private final float wanderRadius = 60;
-    private final float wanderChange = 0.2f;
+    private final float lollyStem = 80;
+    private final float lollyRadius = 20;
+    private final float lollyChange = 0.2f;
     private float wanderTheta = 0.0f;
 
 
@@ -26,14 +26,18 @@ public class Stem {
         p = pApplet;
         mass = _mass;
         pos = new PVector(x, y);
-        vel = new PVector(p.random(-2, 2), p.random(-2, -1));
+        vel = new PVector(0, -1);
         acc = new PVector(0, 0);
     }
-    public Stem(PApplet pApplet, Stem parent) {
+    public Stem(PApplet pApplet, Stem parent, float angle) {
         p = pApplet;
         mass = parent.mass;
         pos = new PVector(parent.pos.x, parent.pos.y);
-        vel = new PVector(parent.vel.x, parent.vel.y); // TODO: parameterize initial branch angle!
+        float heading = parent.vel.heading();
+        vel = new PVector(
+                PApplet.cos(angle + heading),
+                PApplet.sin(angle + heading)
+        );
         acc = new PVector(0, 0);
     }
 
@@ -45,48 +49,46 @@ public class Stem {
 
     public void update() {
         vel.add(acc);
-        pos.add(vel.setMag(maxSpeed * mass));
+        vel.setMag(maxSpeed * mass);
+        pos.add(vel);
+        debug(vel);
         acc.mult(0);
         checkEdges();
-        mass -= decayRate;
+        mass *= decayRate;
     }
 
     public void display() {
         p.stroke(0);
         p.fill(48);
-        p.ellipse(pos.x, pos.y, 3 * mass, 3 * mass);
+        p.ellipse(pos.x, pos.y, 10 * mass, 10 * mass);
     }
 
-    void applyForce(PVector force) {
-        PVector f = PVector.div(force, mass);
+    void applyForce(PVector force, boolean ignoreMass) {
+        float _mass = mass;
+        PVector f = PVector.div(force, _mass);
+        debugB(f);
         acc.add(f);
     }
 
     void applyBehaviors(ArrayList<Stem> others, FlowField flow) {
         PVector ris = rise();
-        PVector wan = wander();
+        PVector wan = lollyWander();
         PVector sep = separation(others);
-        PVector ali = alignment(others);
-        PVector coh = cohesion(others);
         PVector flo = flow != null
                 ? follow(flow)
                 : null;
 
-        ris.mult(1.0f);
-        wan.mult(5.0f);
-        sep.mult(2.0f);
-        ali.mult(1.0f);
-        coh.mult(1.0f);
+        ris.mult(5.0f);
+        wan.mult(2f);
+        sep.mult(0.5f);
         if (flo != null)
             flo.mult(1.5f);
 
-        applyForce(ris);
-        applyForce(wan);
-        applyForce(sep);
-        applyForce(ali);
-        applyForce(coh);
+        applyForce(ris, false);
+        applyForce(wan, true);
+        applyForce(sep, false);
         if (flo != null)
-            applyForce(flo);
+            applyForce(flo, false);
     }
 
     public PVector follow(FlowField flow) {
@@ -95,23 +97,38 @@ public class Stem {
         steer.sub(vel);
         steer.limit(maxForce);
         return steer;
+
     }
 
-    public PVector wander() {
-        wanderTheta += p.random(-wanderChange, wanderChange);
+    public PVector lollyWander() {
+        wanderTheta = 2;
         PVector predict = vel.copy();
-        predict.setMag(wanderDistance);
+        predict.setMag(lollyStem);
         predict.add(pos);
         float originAngle = vel.heading();
-        float x = wanderRadius * PApplet.cos(wanderTheta + originAngle);
-        float y = wanderRadius * PApplet.sin(wanderTheta + originAngle);
+        float x = lollyRadius * PApplet.cos(wanderTheta + originAngle);
+        float y = lollyRadius * PApplet.sin(wanderTheta + originAngle);
         PVector target = PVector.add(predict, new PVector(x, y));
-//        debug(predict, target);
+        debug(predict, target);
         return seek(target);
     }
 
+//    public PVector windsheildWander() {
+//        wanderTheta += p.random(-wanderChange, wanderChange);
+//        PVector predict = vel.copy();
+//        predict.setMag(wanderDistance);
+//        predict.add(pos);
+//        float originAngle = vel.heading();
+//        float x = wanderRadius * PApplet.cos(wanderTheta + originAngle);
+//        float y = wanderRadius * PApplet.sin(wanderTheta + originAngle);
+//        PVector target = PVector.add(predict, new PVector(x, y));
+//        debug(predict, target);
+//        return seek(target);
+//    }
+
+
     public PVector rise() {
-        return seek(new PVector(pos.x, pos.y -1));
+        return seek(new PVector(pos.x, pos.y - 1));
     }
 
     public PVector separation(ArrayList<Stem> others) {
@@ -135,7 +152,7 @@ public class Stem {
             sum.div(count);
             sum.setMag(maxSpeed);
             PVector steer = PVector.sub(sum, vel);
-            steer.limit(maxForce * 5);
+            steer.limit(maxForce);
             return steer;
         }
         return new PVector(0, 0);
@@ -196,13 +213,20 @@ public class Stem {
     }
 
     // ----------------------------------------------------------------------------------------------------------- debug
+    public void debugB(PVector v) {
+        PVector scaled = PVector.mult(v, -300);
+        PVector relative = PVector.add(pos, scaled);
+        p.strokeWeight(5); p.stroke(0, 0, 255);
+        p.line(pos.x, pos.y, relative.x, relative.y);
+    }
     public void debug(PVector v) {
-        PVector relative = PVector.add(pos, v);
-        p.stroke(0);
+        PVector scaled = PVector.mult(v, 10);
+        PVector relative = PVector.add(pos, scaled);
+        p.stroke(0, 255, 0);
         p.line(pos.x, pos.y, relative.x, relative.y);
     }
     public void debug(PVector v, PVector w) {
-        p.stroke(0);
+        p.stroke(255, 0, 0);
         p.line(pos.x, pos.y, v.x, v.y);
         p.line(v.x, v.y, w.x, w.y);
     }
