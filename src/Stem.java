@@ -13,7 +13,7 @@ public class Stem {
 
     private float maxForce = 2f;
     private float maxSpeed = 0.5f;
-    private float decayRate = 0.998f;
+    private float decayRate = 0.992f;
     private final float neighborDistance = 200;
 
     private final float lollyStem = 80;
@@ -43,6 +43,8 @@ public class Stem {
 
     public void run(ArrayList<Stem> others, FlowField flow) {
         applyBehaviors(others, flow);
+//        p.text("  pos: (" + pos.x + ", " + pos.y + ")", pos.x, pos.y);
+        p.text("  mass: (" + mass + ")", pos.x, pos.y);
         update();
         display();
     }
@@ -66,7 +68,7 @@ public class Stem {
 
     void applyForce(PVector force, String label) {
         PVector f = PVector.div(force, mass);
-        debug(f, label, true, 100, 0, 0, 255);
+//        debug(f, label, true, 100, 0, 0, 255);
         acc.add(f);
     }
 
@@ -105,7 +107,7 @@ public class Stem {
         float x = lollyRadius * PApplet.cos(wanderTheta + originAngle);
         float y = lollyRadius * PApplet.sin(wanderTheta + originAngle);
         PVector target = PVector.add(predict, new PVector(x, y));
-        debug(predict, target);
+//        debug(predict, target);
         return seek(target);
     }
 
@@ -126,7 +128,7 @@ public class Stem {
     public PVector rise() {
         PVector risePoint = new PVector(pos.x, pos.y - 1);
         debug(risePoint, "rise point", false, 100, 0, 255, 0);
-        return seek(new PVector(pos.x, pos.y - 1));
+        return seek(risePoint);
     }
 
     public PVector separation(ArrayList<Stem> others) {

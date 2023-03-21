@@ -18,8 +18,15 @@ public class Main extends PApplet {
     }
 
     public void draw() {
-        frameRate(3);
+        frameRate(4);
         background(255);
+
+        stroke(0);
+        strokeWeight(2);
+        fill(0, 0, 0, 0);
+        line(width/2, height/2, width/2, 20 + (height/2));
+        line(width/2, height/2, 20 + (width/2), height/2);
+
         textSize(32);
 //        if (frameCount == 1)
 //            flowField.debug();
