@@ -47,48 +47,44 @@ public class Stem {
         display();
     }
 
+    public void display() {
+        p.stroke(0);
+        p.strokeWeight(2);
+        p.fill(0, 0, 0, 0);
+        p.ellipse(pos.x, pos.y, 2 * mass, 2 * mass);
+    }
+
+
     public void update() {
         vel.add(acc);
         vel.setMag(maxSpeed * mass);
         pos.add(vel);
-        debug(vel);
         acc.mult(0);
         checkEdges();
         mass *= decayRate;
     }
 
-    public void display() {
-        p.stroke(0);
-        p.fill(48);
-        p.ellipse(pos.x, pos.y, 10 * mass, 10 * mass);
-    }
-
-    void applyForce(PVector force, boolean ignoreMass) {
-        float _mass = mass;
-        PVector f = PVector.div(force, _mass);
-        debugB(f);
+    void applyForce(PVector force, String label) {
+        PVector f = PVector.div(force, mass);
+        debug(f, label, true, 100, 0, 0, 255);
         acc.add(f);
     }
 
     void applyBehaviors(ArrayList<Stem> others, FlowField flow) {
         PVector ris = rise();
-        PVector wan = lollyWander();
-        PVector sep = separation(others);
-        PVector flo = flow != null
-                ? follow(flow)
-                : null;
+//        PVector wan = lollyWander();
+//        PVector sep = separation(others);
+//        PVector flo = follow(flow);
 
         ris.mult(5.0f);
-        wan.mult(2f);
-        sep.mult(0.5f);
-        if (flo != null)
-            flo.mult(1.5f);
+//        wan.mult(2f);
+//        sep.mult(0.5f);
+//        flo.mult(1.5f);
 
-        applyForce(ris, false);
-        applyForce(wan, true);
-        applyForce(sep, false);
-        if (flo != null)
-            applyForce(flo, false);
+        applyForce(ris, "rise");
+//        applyForce(wan, "wander");
+//        applyForce(sep, "");
+//        applyForce(flo);
     }
 
     public PVector follow(FlowField flow) {
@@ -128,6 +124,8 @@ public class Stem {
 
 
     public PVector rise() {
+        PVector risePoint = new PVector(pos.x, pos.y - 1);
+        debug(risePoint, "rise point", false, 100, 0, 255, 0);
         return seek(new PVector(pos.x, pos.y - 1));
     }
 
@@ -204,7 +202,6 @@ public class Stem {
         return steer;
     }
 
-
     public void checkEdges() {
         if (pos.x > p.width) pos.x = 0;
         if (pos.x < 0) pos.x = p.width;
@@ -213,17 +210,20 @@ public class Stem {
     }
 
     // ----------------------------------------------------------------------------------------------------------- debug
-    public void debugB(PVector v) {
-        PVector scaled = PVector.mult(v, -300);
-        PVector relative = PVector.add(pos, scaled);
-        p.strokeWeight(5); p.stroke(0, 0, 255);
+    public void debug(PVector v, String label, boolean rel, float scale, float r, float g, float b) {
+        PVector relative, scaled;
+        if (rel) {
+            scaled = PVector.mult(v, scale);
+        } else {
+            relative = PVector.sub(pos, v);
+            scaled = PVector.mult(relative, scale);
+        }
+        relative = PVector.add(pos, scaled);
+        p.strokeWeight(3);
+        p.stroke(r, g, b);
         p.line(pos.x, pos.y, relative.x, relative.y);
-    }
-    public void debug(PVector v) {
-        PVector scaled = PVector.mult(v, 10);
-        PVector relative = PVector.add(pos, scaled);
-        p.stroke(0, 255, 0);
-        p.line(pos.x, pos.y, relative.x, relative.y);
+        p.fill(0);
+        p.text("  " + label + ": (" + v.x + ", " + v.y + ")", relative.x, relative.y);
     }
     public void debug(PVector v, PVector w) {
         p.stroke(255, 0, 0);

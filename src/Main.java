@@ -18,7 +18,9 @@ public class Main extends PApplet {
     }
 
     public void draw() {
+        frameRate(3);
         background(255);
+        textSize(32);
 //        if (frameCount == 1)
 //            flowField.debug();
         tree.run();
