@@ -13,7 +13,7 @@ public class Stem {
 
     private float maxForce = 2f;
     private float maxSpeed = 0.5f;
-    private float decayRate = 0.992f;
+    private float decayRate = 0.99f;
     private final float neighborDistance = 200;
 
     private final float lollyStem = 80;
@@ -23,11 +23,10 @@ public class Stem {
 
 
     public Stem(PApplet pApplet, float _mass, float x, float y) {
-        p = pApplet;
-        mass = _mass;
-        pos = new PVector(x, y);
+        p = pApplet; mass = _mass;
         vel = new PVector(0, -1);
         acc = new PVector(0, 0);
+        pos = new PVector(x, y);
     }
     public Stem(PApplet pApplet, Stem parent, float angle) {
         p = pApplet;
@@ -59,6 +58,7 @@ public class Stem {
 
     public void update() {
         vel.add(acc);
+        System.out.println("maxSpeed: " + maxSpeed + " mass: " + mass + " -> " + maxSpeed * mass);
         vel.setMag(maxSpeed * mass);
         pos.add(vel);
         acc.mult(0);
@@ -126,8 +126,8 @@ public class Stem {
 
 
     public PVector rise() {
-        PVector risePoint = new PVector(pos.x, pos.y - 1);
-        debug(risePoint, "rise point", false, 100, 0, 255, 0);
+        PVector risePoint = new PVector(pos.x, pos.y - 100);
+        debugAbsolute(risePoint, "rise point", 0, 255, 0);
         return seek(risePoint);
     }
 
@@ -212,25 +212,43 @@ public class Stem {
     }
 
     // ----------------------------------------------------------------------------------------------------------- debug
-    public void debug(PVector v, String label, boolean rel, float scale, float r, float g, float b) {
+    public void debugRelative(PVector v, String label, float scale, float r, float g, float b) {
         PVector relative, scaled;
-        if (rel) {
-            scaled = PVector.mult(v, scale);
-        } else {
-            relative = PVector.sub(pos, v);
-            scaled = PVector.mult(relative, scale);
-        }
+        scaled = PVector.mult(v, scale);
         relative = PVector.add(pos, scaled);
-        p.strokeWeight(3);
-        p.stroke(r, g, b);
+        p.strokeWeight(3); p.stroke(r, g, b);
         p.line(pos.x, pos.y, relative.x, relative.y);
         p.fill(0);
         p.text("  " + label + ": (" + v.x + ", " + v.y + ")", relative.x, relative.y);
     }
-    public void debug(PVector v, PVector w) {
-        p.stroke(255, 0, 0);
-        p.line(pos.x, pos.y, v.x, v.y);
-        p.line(v.x, v.y, w.x, w.y);
+
+    public void debugRelative(PVector v, PVector o, String label, float scale, float r, float g, float b) {
+        PVector relative, scaled;
+        scaled = PVector.mult(v, scale);
+        relative = PVector.add(o, scaled);
+        p.strokeWeight(3); p.stroke(r, g, b);
+        p.line(o.x, o.y, relative.x, relative.y);
+        p.fill(0);
+        p.text("  " + label + ": (" + v.x + ", " + v.y + ")", relative.x, relative.y);
     }
 
+    public void debugAbsolute(PVector v, String label, float r, float g, float b) {
+        p.strokeWeight(3);
+        p.stroke(r, g, b);
+        p.fill(0, 0, 0, 0);
+        p.line(pos.x, pos.y, v.x, v.y);
+        p.ellipse(v.x, v.y, 10, 10);
+        p.fill(0);
+        p.text("  " + label + ": (" + v.x + ", " + v.y + ")", v.x, v.y);
+    }
+
+    public void debugAbsolute(PVector v, PVector o, String label, float r, float g, float b) {
+        p.strokeWeight(3);
+        p.stroke(r, g, b);
+        p.fill(0, 0, 0, 0);
+        p.line(o.x, o.y, v.x, v.y);
+        p.ellipse(v.x, v.y, 10, 10);
+        p.fill(0);
+        p.text("  " + label + ": (" + v.x + ", " + v.y + ")", v.x, v.y);
+    }
 }
