@@ -18,7 +18,7 @@ public class Main extends PApplet {
     }
 
     public void draw() {
-        frameRate(4);
+        frameRate(10);
         background(255);
         reticle();
 //        PVector mouse = new PVector(mouseX, mouseY);

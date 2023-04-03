@@ -11,15 +11,10 @@ public class Stem {
     public PVector vel;
     public PVector acc;
 
-    private float maxForce = 2f;
-    private float maxSpeed = 0.5f;
-    private float decayRate = 0.99f;
+    private float maxForce = 0.2f;
+    private float maxSpeed = 5f;
+    private float decayRate = 0.05f;
     private final float neighborDistance = 200;
-
-    private final float lollyStem = 80;
-    private final float lollyRadius = 20;
-    private final float lollyChange = 0.2f;
-    private float wanderTheta = 0.0f;
 
 
     public Stem(PApplet pApplet, float _mass, float x, float y) {
@@ -44,8 +39,8 @@ public class Stem {
         applyBehaviors(others, flow);
 //        p.text("  pos: (" + pos.x + ", " + pos.y + ")", pos.x, pos.y);
         p.text("  mass: (" + mass + ")", pos.x, pos.y);
-        update();
         display();
+        update();
     }
 
     public void display() {
@@ -59,32 +54,32 @@ public class Stem {
     public void update() {
         vel.add(acc);
         System.out.println("maxSpeed: " + maxSpeed + " mass: " + mass + " -> " + maxSpeed * mass);
-        vel.setMag(maxSpeed * mass);
+        vel.setMag(maxSpeed);
         pos.add(vel);
         acc.mult(0);
         checkEdges();
-        mass *= decayRate;
+        mass -= decayRate;
     }
 
     void applyForce(PVector force, String label) {
-        PVector f = PVector.div(force, mass);
+        PVector f = force; // PVector.div(force, mass);
 //        debug(f, label, true, 100, 0, 0, 255);
         acc.add(f);
     }
 
     void applyBehaviors(ArrayList<Stem> others, FlowField flow) {
         PVector ris = rise();
-//        PVector wan = lollyWander();
+        PVector wan = windsheildWander();
 //        PVector sep = separation(others);
 //        PVector flo = follow(flow);
 
         ris.mult(5.0f);
-//        wan.mult(2f);
+        wan.mult(6.0f);
 //        sep.mult(0.5f);
 //        flo.mult(1.5f);
 
         applyForce(ris, "rise");
-//        applyForce(wan, "wander");
+        applyForce(wan, "wander");
 //        applyForce(sep, "");
 //        applyForce(flo);
     }
@@ -98,8 +93,12 @@ public class Stem {
 
     }
 
+    private float wanderTheta = 0.0f;
+    private final float lollyStem = 80;
+    private final float lollyRadius = 20;
+    private final float lollyChange = 0.2f;
     public PVector lollyWander() {
-        wanderTheta = 2;
+        wanderTheta = wanderTheta + p.random(-lollyChange, lollyChange);
         PVector predict = vel.copy();
         predict.setMag(lollyStem);
         predict.add(pos);
@@ -107,27 +106,49 @@ public class Stem {
         float x = lollyRadius * PApplet.cos(wanderTheta + originAngle);
         float y = lollyRadius * PApplet.sin(wanderTheta + originAngle);
         PVector target = PVector.add(predict, new PVector(x, y));
-//        debug(predict, target);
+        debugAbsolute(target, predict, null, 255, 0, 0);
+        debugAbsolute(predict, null, 255, 0, 0);
         return seek(target);
     }
 
-//    public PVector windsheildWander() {
-//        wanderTheta += p.random(-wanderChange, wanderChange);
-//        PVector predict = vel.copy();
-//        predict.setMag(wanderDistance);
-//        predict.add(pos);
-//        float originAngle = vel.heading();
-//        float x = wanderRadius * PApplet.cos(wanderTheta + originAngle);
-//        float y = wanderRadius * PApplet.sin(wanderTheta + originAngle);
-//        PVector target = PVector.add(predict, new PVector(x, y));
-//        debug(predict, target);
-//        return seek(target);
-//    }
+    private final float windshieldChange = 0.1f;
+    private final float windshieldRadius = 80f;
+    private final float thetaBound = 1.0f;
+    public PVector windsheildWander() {
+        float change = p.map(p.noise(p.frameCount), 0, 1, -windshieldChange, windshieldChange);
+
+        wanderTheta += change;
+        if (wanderTheta > thetaBound) {
+            wanderTheta = thetaBound - (wanderTheta - thetaBound);
+        }
+        if (wanderTheta < -thetaBound) {
+            wanderTheta = -thetaBound - (wanderTheta + thetaBound);
+        }
+        float originAngle = vel.heading();
+        float x = windshieldRadius * PApplet.cos(wanderTheta + originAngle);
+        float y = windshieldRadius * PApplet.sin(wanderTheta + originAngle);
+        PVector target = new PVector(x, y);
+        target.add(pos);
+        debugAbsolute(target, null, 255, 0, 0);
+        p.ellipse(pos.x, pos.y, windshieldRadius * 2, windshieldRadius * 2);
+        PVector max = new PVector(
+                windshieldRadius * PApplet.cos(thetaBound + originAngle),
+                windshieldRadius * PApplet.sin(thetaBound + originAngle)
+        );
+        debugRelative(max, null, 1, 0, 0, 255);
+        PVector min = new PVector(
+                windshieldRadius * PApplet.cos(originAngle - thetaBound),
+                windshieldRadius * PApplet.sin(originAngle - thetaBound)
+        );
+        debugRelative(min, null, 1, 0, 0, 255);
+
+        return seek(target);
+    }
 
 
     public PVector rise() {
         PVector risePoint = new PVector(pos.x, pos.y - 100);
-        debugAbsolute(risePoint, "rise point", 0, 255, 0);
+//        debugAbsolute(risePoint, "rise point", 0, 255, 0);
         return seek(risePoint);
     }
 
@@ -218,8 +239,10 @@ public class Stem {
         relative = PVector.add(pos, scaled);
         p.strokeWeight(3); p.stroke(r, g, b);
         p.line(pos.x, pos.y, relative.x, relative.y);
-        p.fill(0);
-        p.text("  " + label + ": (" + v.x + ", " + v.y + ")", relative.x, relative.y);
+        if (label != null) {
+            p.fill(0);
+            p.text("  " + label + ": (" + v.x + ", " + v.y + ")", relative.x, relative.y);
+        }
     }
 
     public void debugRelative(PVector v, PVector o, String label, float scale, float r, float g, float b) {
@@ -228,8 +251,10 @@ public class Stem {
         relative = PVector.add(o, scaled);
         p.strokeWeight(3); p.stroke(r, g, b);
         p.line(o.x, o.y, relative.x, relative.y);
-        p.fill(0);
-        p.text("  " + label + ": (" + v.x + ", " + v.y + ")", relative.x, relative.y);
+        if (label != null) {
+            p.fill(0);
+            p.text("  " + label + ": (" + v.x + ", " + v.y + ")", relative.x, relative.y);
+        }
     }
 
     public void debugAbsolute(PVector v, String label, float r, float g, float b) {
@@ -238,8 +263,10 @@ public class Stem {
         p.fill(0, 0, 0, 0);
         p.line(pos.x, pos.y, v.x, v.y);
         p.ellipse(v.x, v.y, 10, 10);
-        p.fill(0);
-        p.text("  " + label + ": (" + v.x + ", " + v.y + ")", v.x, v.y);
+        if (label != null) {
+            p.fill(0);
+            p.text("  " + label + ": (" + v.x + ", " + v.y + ")", v.x, v.y);
+        }
     }
 
     public void debugAbsolute(PVector v, PVector o, String label, float r, float g, float b) {
@@ -248,7 +275,9 @@ public class Stem {
         p.fill(0, 0, 0, 0);
         p.line(o.x, o.y, v.x, v.y);
         p.ellipse(v.x, v.y, 10, 10);
-        p.fill(0);
-        p.text("  " + label + ": (" + v.x + ", " + v.y + ")", v.x, v.y);
+        if (label != null) {
+            p.fill(0);
+            p.text("  " + label + ": (" + v.x + ", " + v.y + ")", v.x, v.y);
+        }
     }
 }
